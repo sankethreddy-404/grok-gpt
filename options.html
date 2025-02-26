@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat Relay Options</title>
+    <style>
+      /* Base theme variables */
+      :root {
+        --background: #ffffff;
+        --text: #333333;
+        --border: #dddddd;
+        --surface: #f9f9f9;
+        --surface-hover: #f0f0f0;
+        --primary: #4caf50;
+        --primary-hover: #45a049;
+        --error: #f44336;
+        --success: #4caf50;
+        --warning: #ffa500;
+        --info: #2196f3;
+      }
+
+      /* Dark theme */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: #1a1a1a;
+          --text: #ffffff;
+          --border: #333333;
+          --surface: #2d2d2d;
+          --surface-hover: #3d3d3d;
+          --primary: #66bb6a;
+          --primary-hover: #81c784;
+        }
+
+        .conversation-topic {
+          background: #1a3747 !important;
+        }
+
+        .conversation-response {
+          border-left-color: var(--primary) !important;
+        }
+
+        .bot-indicator {
+          background: #404040 !important;
+        }
+
+        .success-rate {
+          color: var(--primary) !important;
+        }
+      }
+
+      /* Base styles */
+      body {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--background);
+        color: var(--text);
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      input[type="number"],
+      input[type="url"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 5px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: var(--background);
+        color: var(--text);
+      }
+      button {
+        background-color: var(--primary);
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: var(--primary-hover);
+      }
+      .status {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 4px;
+        display: none;
+      }
+      .success {
+        background-color: #dff0d8;
+        color: #3c763d;
+        border: 1px solid #d6e9c6;
+      }
+      .error {
+        background-color: #f2dede;
+        color: #a94442;
+        border: 1px solid #ebccd1;
+      }
+      .url-group {
+        position: relative;
+      }
+      .validation-error {
+        color: red;
+        font-size: 0.8em;
+        margin-top: 2px;
+      }
+      .settings-section {
+        background: var(--surface);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border);
+      }
+      h2 {
+        color: #333;
+        margin-top: 0;
+      }
+      .stats-panel {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 20px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .stat-item {
+        background: white;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-label {
+        font-weight: bold;
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .stat-value {
+        font-size: 1.2em;
+        color: #333;
+        margin-top: 5px;
+      }
+
+      .error-stats {
+        margin-top: 15px;
+        padding: 10px;
+        background: #fff3f3;
+        border-radius: 4px;
+      }
+
+      .success-rate {
+        color: var(--primary);
+        font-weight: bold;
+      }
+
+      .conversation-log {
+        margin-top: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+      }
+
+      .conversation-entry {
+        padding: 8px;
+        margin: 5px 0;
+        border-radius: 4px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+      }
+
+      .conversation-topic {
+        background: #e3f2fd;
+        font-weight: bold;
+      }
+
+      .conversation-response {
+        margin-left: 20px;
+        border-left: 3px solid var(--primary);
+        padding-left: 10px;
+      }
+
+      .conversation-timestamp {
+        color: #666;
+        font-size: 0.8em;
+        float: right;
+      }
+
+      .bot-indicator {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        background: #e0e0e0;
+        margin-right: 8px;
+        font-size: 0.9em;
+      }
+
+      .export-button {
+        margin-top: 10px;
+        background-color: #2196f3;
+      }
+
+      .clear-button {
+        margin-left: 10px;
+        background-color: #f44336;
+      }
+
+      .shortcuts-section {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+      }
+
+      .shortcuts-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .shortcut-key {
+        display: inline-block;
+        padding: 2px 8px;
+        background: var(--surface-hover);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-family: monospace;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .shortcut-description {
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      .snapshots-section {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+      }
+
+      .snapshot-list {
+        margin-top: 15px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .snapshot-item {
+        padding: 15px;
+        background: var(--background);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .snapshot-info {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .snapshot-timestamp {
+        color: var(--text-secondary);
+        font-size: 0.9em;
+      }
+
+      .snapshot-description {
+        color: var(--text);
+        font-weight: bold;
+      }
+
+      .snapshot-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      .restore-button {
+        background-color: var(--primary);
+      }
+
+      .delete-button {
+        background-color: var(--error);
+      }
+
+      .create-snapshot-form {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+
+      .create-snapshot-form input {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .backup-list {
+        margin-top: 15px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .backup-item {
+        padding: 15px;
+        background: var(--background);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .backup-info {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .backup-timestamp {
+        color: var(--text-secondary);
+        font-size: 0.9em;
+      }
+
+      .backup-stats {
+        font-size: 0.9em;
+        color: var(--text);
+      }
+
+      .backup-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .restore-backup-button {
+        background-color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="settings-section">
+      <h2>Chat Relay Settings</h2>
+      <div class="form-group url-group">
+        <label for="topic">Conversation Topic:</label>
+        <input
+          type="text"
+          id="topic"
+          placeholder="Enter the topic for chatbots to discuss"
+        />
+        <div class="validation-error" id="topic-error"></div>
+      </div>
+      <div id="urlInputs">
+        <!-- Add this div -->
+        <div class="form-group url-group">
+          <label for="url1">Chatbot URL 1:</label>
+          <input
+            type="url"
+            id="url1"
+            placeholder="Enter URL for Chatbot 1"
+            required
+          />
+          <div class="validation-error" id="url1-error"></div>
+        </div>
+        <!-- Added second URL input -->
+        <div class="form-group url-group">
+          <label for="url2">Chatbot URL 2:</label>
+          <input
+            type="url"
+            id="url2"
+            placeholder="Enter URL for Chatbot 2"
+            required
+          />
+          <div class="validation-error" id="url2-error"></div>
+        </div>
+      </div>
+      <!-- End of urlInputs -->
+      <button id="addUrl">Add Chatbot URL</button>
+    </div>
+
+    <div class="settings-section">
+      <h2>Timing Settings</h2>
+      <div class="form-group">
+        <label for="timeout">Response Wait Time (ms):</label>
+        <input type="number" id="timeout" value="3000" />
+        <div class="validation-error" id="timeout-error"></div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h2>Extension Status</h2>
+      <div class="form-group">
+        <label>Current Status:</label>
+        <div id="status-display">Loading...</div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h2>Performance Statistics</h2>
+      <div class="stats-panel">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-label">Messages Exchanged</div>
+            <div class="stat-value" id="messages-count">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Average Response Time</div>
+            <div class="stat-value" id="avg-response-time">0ms</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Success Rate</div>
+            <div class="stat-value success-rate" id="success-rate">100%</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Running Time</div>
+            <div class="stat-value" id="running-time">0:00</div>
+          </div>
+        </div>
+
+        <div class="error-stats">
+          <h3>Error Statistics</h3>
+          <div>Network Errors: <span id="network-errors">0</span></div>
+          <div>Timeout Errors: <span id="timeout-errors">0</span></div>
+          <div>Connection Drops: <span id="connection-drops">0</span></div>
+          <div>Other Errors: <span id="other-errors">0</span></div>
+        </div>
+      </div>
+      <button id="reset-stats" style="margin-top: 10px">
+        Reset Statistics
+      </button>
+    </div>
+
+    <div class="settings-section">
+      <h2>Conversation History</h2>
+      <div class="conversation-controls">
+        <button id="export-log" class="export-button">Export History</button>
+        <button id="clear-log" class="clear-button">Clear History</button>
+      </div>
+      <div id="conversation-log" class="conversation-log">
+        <!-- Conversation entries will be inserted here -->
+      </div>
+    </div>
+
+    <div class="shortcuts-section">
+      <h2>Keyboard Shortcuts</h2>
+      <div class="shortcuts-grid">
+        <div class="shortcut-key">Alt+Shift+T</div>
+        <div class="shortcut-description">Toggle extension on/off</div>
+
+        <div class="shortcut-key">Alt+Shift+C</div>
+        <div class="shortcut-description">Start a new chat relay</div>
+
+        <div class="shortcut-key">Alt+Shift+S</div>
+        <div class="shortcut-description">Stop current chat relay</div>
+      </div>
+      <p
+        style="margin-top: 15px; font-size: 0.9em; color: var(--text-secondary)"
+      >
+        Note: These shortcuts can be customized in Chrome's extension keyboard
+        shortcuts settings (chrome://extensions/shortcuts)
+      </p>
+    </div>
+
+    <div class="snapshots-section">
+      <h2>Conversation Snapshots</h2>
+      <p>Save and restore important moments from your chat relay sessions.</p>
+
+      <div class="create-snapshot-form">
+        <input
+          type="text"
+          id="snapshot-description"
+          placeholder="Enter a description for this snapshot"
+        />
+        <button id="create-snapshot" class="primary-button">
+          Create Snapshot
+        </button>
+      </div>
+
+      <div id="snapshot-list" class="snapshot-list">
+        <!-- Snapshots will be inserted here -->
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h2>Backup Management</h2>
+      <p>
+        System automatically creates backups every 30 minutes. You can restore
+        from a previous backup if needed.
+      </p>
+
+      <div class="backup-controls">
+        <button id="create-backup" class="primary-button">
+          Create Manual Backup
+        </button>
+      </div>
+
+      <div id="backup-list" class="backup-list">
+        <!-- Backups will be inserted here -->
+      </div>
+    </div>
+
+    <button id="save">Save Settings</button>
+    <button id="startChat">Start Chat Relay</button>
+    <button id="stopChat">Stop Chat Relay</button>
+    <div id="status" class="status"></div>
+    <script src="options.js"></script>
+  </body>
+</html>
